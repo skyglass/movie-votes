@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: keycloak-postgres-pv
+spec:
+  capacity:
+    storage: 10Gi  # Adjust storage size as needed
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: manual  # Use manual storage class for explicit PV binding
+  hostPath:
+    path: "/mnt/data/postgresql"  # This path is on the host node
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: keycloak-postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: manual  # Match the manual storage class with the PV
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: keycloak-postgres
+spec:
+  serviceName: keycloak-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak-postgres
+  template:
+    metadata:
+      labels:
+        app: keycloak-postgres
+    spec:
+      containers:
+        - name: keycloak-postgres
+          image: postgres:15.3
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          volumeMounts:
+            - name: keycloak-postgres-dbcreation-script
+              mountPath: /docker-entrypoint-initdb.d
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          resources: {}
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: keycloak-postgres-dbcreation-script
+          configMap:
+            name: keycloak-postgres-dbcreation-script
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: keycloak-postgres-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-postgres
+spec:
+  selector:
+    app: keycloak-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  type: ClusterIP

@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: e2e
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            readTimeout: 30000
+            connectTimeout: 30000
+          customer:
+            url: http://localhost/api/customer
+          market:
+            url: http://localhost/api/market
+          bet:
+            url: http://localhost/api/bet
+          oauth2:
+            url: http://localhost/keycloak
+          kafka:
+            url: http://localhost/kafka-ui/api/clusters/local
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    bet:
+      url: jdbc:postgresql://${app.bet.postgres.host}:${app.bet.postgres.port}/${app.bet.postgres.database}
+      username: ${app.bet.postgres.user}
+      password: ${app.bet.postgres.password}
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        connection-timeout: 2000 #ms
+        maximum-pool-size: 5
+    customer:
+      url: jdbc:postgresql://${app.customer.postgres.host}:${app.customer.postgres.port}/${app.customer.postgres.database}
+      username: ${app.customer.postgres.user}
+      password: ${app.customer.postgres.password}
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        connection-timeout: 2000 #ms
+        maximum-pool-size: 5
+    market:
+      url: jdbc:postgresql://${app.market.postgres.host}:${app.market.postgres.port}/${app.market.postgres.database}
+      username: ${app.market.postgres.user}
+      password: ${app.market.postgres.password}
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        connection-timeout: 2000 #ms
+        maximum-pool-size: 5
+
+security:
+  oauth2:
+    client-id: moviebets-app
+    grant-type: password
+    username: admin
+    password: admin
+
+app:
+  bet:
+    postgres:
+      host: localhost
+      port: 5432
+      database: bettingdb
+      user: bettingdbuser
+      password: dbpass
+  customer:
+    postgres:
+      host: localhost
+      port: 5432
+      database: customerdb
+      user: customerdbuser
+      password: dbpass
+  market:
+    postgres:
+      host: localhost
+      port: 5432
+      database: marketdb
+      user: marketdbuser
+      password: dbpass

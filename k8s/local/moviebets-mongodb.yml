@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: moviebets-mongodb-pv
+spec:
+  capacity:
+    storage: 10Gi  # Adjust storage size as needed
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: manual  # Use manual storage class for explicit PV binding
+  hostPath:
+    path: "/data/db"  # This path is on the host node
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moviebets-mongodb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: manual  # Match the manual storage class with the PV
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: moviebets-mongodb
+spec:
+  serviceName: moviebets-mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moviebets-mongodb
+  template:
+    metadata:
+      labels:
+        app: moviebets-mongodb
+    spec:
+      containers:
+        - name: moviebets-mongodb
+          image: mongo:8.0.5
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongodb-storage
+              mountPath: /data/db
+          resources: {}
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 20
+      restartPolicy: Always
+      volumes:
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: moviebets-mongodb-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moviebets-mongodb
+spec:
+  selector:
+    app: moviebets-mongodb
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+  type: ClusterIP

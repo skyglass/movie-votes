@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: moviebets-mongodb-pv
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  awsElasticBlockStore:
+    volumeID: $MOVIEBETS_MONGODB_VOLUME_ID
+    fsType: ext4
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moviebets-mongodb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: moviebets-mongodb
+spec:
+  serviceName: moviebets-mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moviebets-mongodb
+  template:
+    metadata:
+      labels:
+        app: moviebets-mongodb
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values:
+                      - eu-central-1b
+      initContainers:
+        - name: format-and-resize-filesystem
+          image: alpine
+          command:
+            - sh
+            - -c
+            - |
+              apk add --no-cache e2fsprogs && \
+              if ! blkid /data/db >/dev/null 2>&1; then
+                echo "Filesystem not found, formatting..."
+                mkfs.ext4 /data/db || echo "Formatting failed"
+              else
+                echo "Filesystem exists, skipping format"
+              fi && \
+              resize2fs /data/db || echo "Resize failed or not needed"
+          volumeMounts:
+            - name: mongodb-storage
+              mountPath: /data/db
+      containers:
+        - name: moviebets-mongodb
+          image: mongo:8.0.5
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongodb-storage
+              mountPath: /data/db
+          resources: {}
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 20
+      restartPolicy: Always
+      volumes:
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: moviebets-mongodb-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moviebets-mongodb
+spec:
+  selector:
+    app: moviebets-mongodb
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+  type: ClusterIP

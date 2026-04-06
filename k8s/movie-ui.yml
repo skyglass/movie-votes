@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-ui
+  template:
+    metadata:
+      labels:
+        app: movie-ui
+    spec:
+      imagePullSecrets:
+        - name: image-pull-secret
+      containers:
+        - name: movie-ui
+          image: $CONTAINER_REGISTRY/movie-ui:$VERSION
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REACT_APP_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: base-url-config
+                  key: BASE_URL
+            - name: REACT_APP_KEYCLOAK_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: base-url-config
+                  key: KEYCLOAK_BASE_URL
+            - name: REACT_APP_OMDB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: moviebets-secrets
+                  key: OMDB_API_KEY
+
+            # These environment variables are only used in the local development environment
+            # They configure the webpack dev server's websocket connection to avoid errors
+            # They should be ignored in the production environment
+            - name: WDS_SOCKET_PORT
+              value: "80"
+            - name: WDS_SOCKET_HOST
+              value: "localhost"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-ui
+spec:
+  selector:
+    app: movie-ui
+  ports:
+    - name: movie-ui
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

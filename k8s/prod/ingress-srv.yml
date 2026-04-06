@@ -1,0 +1,72 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - $INGRESS_TLS_HOST
+      secretName: tls-secret
+  rules:
+    - host: $INGRESS_TLS_HOST
+      http:
+        paths:
+          - path: /api/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gateway
+                port:
+                  number: 9000
+          - path: /keycloak/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: moviebets-keycloak
+                port:
+                  number: 8080
+          - path: /bets-ui/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: moviebets-ui
+                port:
+                  number: 3000
+          - path: /?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: movie-ui
+                port:
+                  number: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kafka-ui-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - $INGRESS_TLS_HOST
+      secretName: tls-secret
+  rules:
+    - host: $INGRESS_TLS_HOST
+      http:
+        paths:
+          - path: /kafka-ui(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: kafka-ui
+                port:
+                  number: 8080

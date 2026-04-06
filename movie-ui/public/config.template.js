@@ -1,0 +1,5 @@
+window._env_ = {
+    REACT_APP_BASE_URL:            "${REACT_APP_BASE_URL}",
+    REACT_APP_KEYCLOAK_BASE_URL:   "${REACT_APP_KEYCLOAK_BASE_URL}",
+    REACT_APP_OMDB_API_KEY:        "${REACT_APP_OMDB_API_KEY}"
+};

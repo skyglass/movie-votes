@@ -1,0 +1,108 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: bet-commands
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: bet-settle
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: bet-settle-job
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: customer-commands
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: customer-events
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: customer-events-dlq
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: market-commands
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: market-check
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: item-status
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: user-votes
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  partitions: 2
+  replicas: 2
