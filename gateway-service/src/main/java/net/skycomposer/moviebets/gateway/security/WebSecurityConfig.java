@@ -34,11 +34,8 @@ public class WebSecurityConfig {
                         .pathMatchers(HttpMethod.GET,"/customer/v3/api-docs/**").permitAll()
                         .pathMatchers("/customer", "/customer/**").permitAll()
 
-                        .pathMatchers(HttpMethod.GET,"/market/v3/api-docs/**").permitAll()
-                        .pathMatchers("/market", "/market/**").permitAll()
-
-                        .pathMatchers(HttpMethod.GET,"/bet/v3/api-docs/**").permitAll()
-                        .pathMatchers("/bet", "/bet/**").permitAll()
+                        .pathMatchers(HttpMethod.GET,"/vote/v3/api-docs/**").permitAll()
+                        .pathMatchers("/vote", "/vote/**").permitAll()
 
                         .pathMatchers(HttpMethod.GET,"/movie/v3/api-docs/**").permitAll()
                         .pathMatchers("/movie", "/movie/**").permitAll()
@@ -66,6 +63,6 @@ public class WebSecurityConfig {
         };
     }
 
-    public static final String MOVIEBETS_MANAGER = "MOVIEBETS_MANAGER";
-    public static final String MOVIEBETS_USER = "MOVIEBETS_USER";
+    public static final String MOVIEVOTES_MANAGER = "MOVIEVOTES_MANAGER";
+    public static final String MOVIEVOTES_USER = "MOVIEVOTES_USER";
 }

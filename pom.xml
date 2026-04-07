@@ -9,8 +9,8 @@
         <relativePath />
     </parent>
 
-    <groupId>net.skycomposer.moviebets</groupId>
-    <artifactId>moviebets-parent</artifactId>
+    <groupId>net.skycomposer.movievotes</groupId>
+    <artifactId>movievotes-parent</artifactId>
     <version>1.1</version>
     <packaging>pom</packaging>
 
@@ -31,8 +31,7 @@
         <module>common-domain</module>
         <module>customer-service</module>
         <module>movie-service</module>
-        <module>market-service</module>
-        <module>bet-service</module>
+        <module>vote-service</module>
         <module>gateway-service</module>
         <module>e2e-service</module>
     </modules>

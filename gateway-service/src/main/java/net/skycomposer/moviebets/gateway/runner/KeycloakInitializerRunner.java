@@ -68,7 +68,7 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
         clientRepresentation.setPublicClient(true);
         clientRepresentation.setRedirectUris(List.of(movieBetsAppRedirectUrl));
         clientRepresentation.setWebOrigins(List.of(movieBetsAppBaseUrl));
-        clientRepresentation.setDefaultRoles(new String[]{WebSecurityConfig.MOVIEBETS_USER});
+        clientRepresentation.setDefaultRoles(new String[]{WebSecurityConfig.MOVIEVOTES_USER});
         realmRepresentation.setClients(List.of(clientRepresentation));
 
         // Users
@@ -109,9 +109,9 @@ public class KeycloakInitializerRunner implements CommandLineRunner {
 
     private Map<String, List<String>> getClientRoles(UserPass userPass) {
         List<String> roles = new ArrayList<>();
-        roles.add(WebSecurityConfig.MOVIEBETS_USER);
+        roles.add(WebSecurityConfig.MOVIEVOTES_USER);
         if ("admin".equals(userPass.username())) {
-            roles.add(WebSecurityConfig.MOVIEBETS_MANAGER);
+            roles.add(WebSecurityConfig.MOVIEVOTES_MANAGER);
         }
         return Map.of(MOVIEBETS_APP_CLIENT_ID, roles);
     }

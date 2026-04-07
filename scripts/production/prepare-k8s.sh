@@ -18,9 +18,9 @@ set -u # or set -o nounset
 : "$GITHUB_TOKEN"
 
 kubectl delete configmap base-url-config
-kubectl delete secret moviebets-secrets
+kubectl delete secret movievotes-secrets
 kubectl create configmap base-url-config --from-literal=BASE_URL=$BASE_URL --from-literal=NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL --from-literal=KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
-kubectl create secret generic moviebets-secrets --from-literal=OMDB_API_KEY=$OMDB_API_KEY
+kubectl create secret generic movievotes-secrets --from-literal=OMDB_API_KEY=$OMDB_API_KEY
 
 kubectl create secret docker-registry image-pull-secret \
   --docker-server=ghcr.io \

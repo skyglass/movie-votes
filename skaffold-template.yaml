@@ -1,0 +1,38 @@
+apiVersion: skaffold/v2beta17
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./k8s/generated/*
+build:
+  local:
+    push: $DOCKER_PUSH
+  artifacts:
+    - image: $CONTAINER_REGISTRY/movie-ui
+      context: movie-ui
+      docker:
+        dockerfile: $DOCKER_FILE_NAME
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+    - image: $CONTAINER_REGISTRY/movievotes-postgres
+      context: movievotes-postgres
+      docker:
+        dockerfile: $DOCKER_FILE_NAME
+      sync:
+        manual:
+          - src: 'scripts/**/*.sh'
+            dest: .
+    - image: $CONTAINER_REGISTRY/customer-service
+      context: customer-service
+      jib: {}
+    - image: $CONTAINER_REGISTRY/movie-service
+      context: movie-service
+      jib: {}
+    - image: $CONTAINER_REGISTRY/vote-service
+      context: vote-service
+      jib: {}
+    - image: $CONTAINER_REGISTRY/gateway-service
+      context: gateway-service
+      jib: {}

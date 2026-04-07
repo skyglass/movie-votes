@@ -67,25 +67,16 @@ spring:
             - name: CircuitBreaker
               args:
                 name: customerCircuitBreaker
-                fallbackUri: forward:/moviebets-fallback
-        - id: market
-          uri: ${MARKET_SERVICE_URL:http://localhost:9004}
+                fallbackUri: forward:/movievotes-fallback
+        - id: vote
+          uri: ${VOTE_SERVICE_URL:http://localhost:9005}
           predicates:
-            - Path=/api/market/**
+            - Path=/api/vote/**
           filters:
             - name: CircuitBreaker
               args:
-                name: marketCircuitBreaker
-                fallbackUri: forward:/moviebets-fallback
-        - id: bet
-          uri: ${BET_SERVICE_URL:http://localhost:9005}
-          predicates:
-            - Path=/api/bet/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: betCircuitBreaker
-                fallbackUri: forward:/moviebets-fallback
+                name: voteCircuitBreaker
+                fallbackUri: forward:/movievotes-fallback
         - id: movie
           uri: ${MOVIE_SERVICE_URL:http://localhost:9006}
           predicates:
@@ -94,7 +85,7 @@ spring:
             - name: CircuitBreaker
               args:
                 name: movieCircuitBreaker
-                fallbackUri: forward:/moviebets-fallback
+                fallbackUri: forward:/movievotes-fallback
 
   data:
     redis:
@@ -116,18 +107,18 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${spring.keycloak.server-external-url}/realms/moviebets-realm
-          jwk-set-uri: ${spring.keycloak.server-url}/realms/moviebets-realm/protocol/openid-connect/certs
+          issuer-uri: ${spring.keycloak.server-external-url}/realms/movievotes-realm
+          jwk-set-uri: ${spring.keycloak.server-url}/realms/movievotes-realm/protocol/openid-connect/certs
 
 jwt:
   auth:
     converter:
-      resource-id: moviebets-app
+      resource-id: movievotes-app
       principal-attribute: preferred_username
 
-moviebets-app:
+movievotes-app:
   base-url: http://localhost
-  redirect-url: ${moviebets-app.base-url}/*
+  redirect-url: ${movievotes-app.base-url}/*
 
 resilience4j:
   circuitbreaker:
@@ -195,7 +186,5 @@ springdoc:
         name: Movie Service
       - url: /api/customer/v3/api-docs
         name: Customer Service
-      - url: /api/market/v3/api-docs
-        name: Market Service
-      - url: /api/bet/v3/api-docs
-        name: Bet Service
+      - url: /api/vote/v3/api-docs
+        name: Vote Service
